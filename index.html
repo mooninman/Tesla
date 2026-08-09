@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Fullscreen Hub</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #f0f0f0;
+        }
+
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .shortcut-card {
+            background-color: #1e1e1e;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.15s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .shortcut-card:active {
+            transform: scale(0.95);
+            background-color: #2c2c2c;
+        }
+
+        .shortcut-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .shortcut-title {
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tesla 車載全屏快捷頁</h1>
+
+    <div class="shortcut-grid">
+        <div class="shortcut-card" onclick="launchApp('https://emdy.mimdt.cc/')">
+            <div class="shortcut-icon">🚀</div>
+            <div class="shortcut-title">EMDY</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://www.xn--wcv59z.com/')">
+            <div class="shortcut-icon">🥟</div>
+            <div class="shortcut-title">包子影視</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://www.4kvm.org/play/ch241ohlk')">
+            <div class="shortcut-icon">🎞️</div>
+            <div class="shortcut-title">4K 影視</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://www.netflixgc.com/')">
+            <div class="shortcut-icon">🍿</div>
+            <div class="shortcut-title">NetflixGC</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a')">
+            <div class="shortcut-icon">🍉</div>
+            <div class="shortcut-title">西瓜動漫</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://anime1.me/')">
+            <div class="shortcut-icon">🍥</div>
+            <div class="shortcut-title">Anime1</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('https://ani.gamer.com.tw/animeList.php')">
+            <div class="shortcut-icon">🎮</div>
+            <div class="shortcut-title">動畫瘋</div>
+        </div>
+
+        <div class="shortcut-card" onclick="launchApp('')">
+            <div class="shortcut-icon">⛶</div>
+            <div class="shortcut-title">僅全屏當前頁</div>
+        </div>
+    </div>
+
+    <!-- 用於觸發 Tesla 全屏模式的 Base64 靜音短片 -->
+    <video id="fullscreenTrigger" playsinline preload="auto">
+        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAA=" type="video/mp4">
+    </video>
+
+    <script>
+        let pendingUrl = '';
+
+        const video = document.getElementById('fullscreenTrigger');
+
+        // 監聽全屏狀態變化：確認進入全屏後才執行跳轉
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+        function onFullscreenChange() {
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            if (isFullscreen && pendingUrl) {
+                const target = pendingUrl;
+                pendingUrl = ''; // 清除狀態防止重複觸發
+                // 採用 replace 避免污染返回歷史
+                window.location.replace(target);
+            }
+        }
+
+        function launchApp(targetUrl) {
+            pendingUrl = targetUrl;
+
+            // 觸發影片全屏
+            if (video.requestFullscreen) {
+                video.requestFullscreen().catch(handleError);
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            }
+
+            video.play().catch(handleError);
+
+            // Fallback：若 800ms 內沒成功觸發全屏事件，則直接跳轉
+            if (targetUrl) {
+                setTimeout(() => {
+                    if (pendingUrl) {
+                        window.location.href = pendingUrl;
+                    }
+                }, 800);
+            }
+        }
+
+        function handleError(err) {
+            console.log("Fullscreen Error:", err);
+            if (pendingUrl) {
+                window.location.href = pendingUrl;
+            }
+        }
+    </script>
+</body>
+</html>
