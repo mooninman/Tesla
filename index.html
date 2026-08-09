@@ -87,48 +87,79 @@
     <h1>Tesla 車載全屏快捷頁</h1>
 
     <div class="shortcut-grid">
+        <!-- 1. EMDY -->
         <div class="shortcut-card" onclick="launchApp('https://emdy.mimdt.cc/')">
             <div class="shortcut-icon">🚀</div>
             <div class="shortcut-title">EMDY</div>
         </div>
 
+        <!-- 2. 觀影 -->
         <div class="shortcut-card" onclick="launchApp('https://www.xn--wcv59z.com/')">
-            <div class="shortcut-icon">🥟</div>
-            <div class="shortcut-title">包子影視</div>
+            <div class="shortcut-icon">🎬</div>
+            <div class="shortcut-title">觀影</div>
         </div>
 
+        <!-- 3. 低端影視 (推薦：極乾淨高清) -->
+        <div class="shortcut-card" onclick="launchApp('https://ddys.pro/')">
+            <div class="shortcut-icon">💎</div>
+            <div class="shortcut-title">低端影視</div>
+        </div>
+
+        <!-- 4. 泥巴影視 -->
+        <div class="shortcut-card" onclick="launchApp('https://www.nibavod.com/')">
+            <div class="shortcut-icon">🌧️</div>
+            <div class="shortcut-title">泥巴影視</div>
+        </div>
+
+        <!-- 5. 4K 影視 -->
         <div class="shortcut-card" onclick="launchApp('https://www.4kvm.org/play/ch241ohlk')">
             <div class="shortcut-icon">🎞️</div>
             <div class="shortcut-title">4K 影視</div>
         </div>
 
+        <!-- 6. NetflixGC -->
         <div class="shortcut-card" onclick="launchApp('https://www.netflixgc.com/')">
             <div class="shortcut-icon">🍿</div>
             <div class="shortcut-title">NetflixGC</div>
         </div>
 
-        <div class="shortcut-card" onclick="launchApp('https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a')">
-            <div class="shortcut-icon">🍉</div>
-            <div class="shortcut-title">西瓜動漫</div>
-        </div>
-
-        <div class="shortcut-card" onclick="launchApp('https://anime1.me/')">
-            <div class="shortcut-icon">🍥</div>
-            <div class="shortcut-title">Anime1</div>
-        </div>
-
+        <!-- 7. 巴哈姆特動畫瘋 -->
         <div class="shortcut-card" onclick="launchApp('https://ani.gamer.com.tw/animeList.php')">
             <div class="shortcut-icon">🎮</div>
             <div class="shortcut-title">動畫瘋</div>
         </div>
 
+        <!-- 8. AGE 動漫 -->
+        <div class="shortcut-card" onclick="launchApp('https://www.agefans.vip/')">
+            <div class="shortcut-icon">⚡</div>
+            <div class="shortcut-title">AGE動漫</div>
+        </div>
+
+        <!-- 9. Anime1 -->
+        <div class="shortcut-card" onclick="launchApp('https://anime1.me/')">
+            <div class="shortcut-icon">🍥</div>
+            <div class="shortcut-title">Anime1</div>
+        </div>
+
+        <!-- 10. Bilibili -->
+        <div class="shortcut-card" onclick="launchApp('https://www.bilibili.com/')">
+            <div class="shortcut-icon">📺</div>
+            <div class="shortcut-title">Bilibili</div>
+        </div>
+
+        <!-- 11. Twitch -->
+        <div class="shortcut-card" onclick="launchApp('https://www.twitch.tv/')">
+            <div class="shortcut-icon">👾</div>
+            <div class="shortcut-title">Twitch</div>
+        </div>
+
+        <!-- 12. 僅全屏當前頁 -->
         <div class="shortcut-card" onclick="launchApp('')">
             <div class="shortcut-icon">⛶</div>
             <div class="shortcut-title">僅全屏當前頁</div>
         </div>
     </div>
 
-    <!-- 用於觸發 Tesla 全屏模式的 Base64 靜音短片 -->
     <video id="fullscreenTrigger" playsinline preload="auto">
         <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAA=" type="video/mp4">
     </video>
@@ -138,7 +169,6 @@
 
         const video = document.getElementById('fullscreenTrigger');
 
-        // 監聽全屏狀態變化：確認進入全屏後才執行跳轉
         document.addEventListener('fullscreenchange', onFullscreenChange);
         document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
@@ -146,8 +176,7 @@
             const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
             if (isFullscreen && pendingUrl) {
                 const target = pendingUrl;
-                pendingUrl = ''; // 清除狀態防止重複觸發
-                // 採用 replace 避免污染返回歷史
+                pendingUrl = '';
                 window.location.replace(target);
             }
         }
@@ -155,7 +184,6 @@
         function launchApp(targetUrl) {
             pendingUrl = targetUrl;
 
-            // 觸發影片全屏
             if (video.requestFullscreen) {
                 video.requestFullscreen().catch(handleError);
             } else if (video.webkitRequestFullscreen) {
@@ -164,7 +192,6 @@
 
             video.play().catch(handleError);
 
-            // Fallback：若 800ms 內沒成功觸發全屏事件，則直接跳轉
             if (targetUrl) {
                 setTimeout(() => {
                     if (pendingUrl) {
