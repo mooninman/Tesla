@@ -1,372 +1,332 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesla Fullscreen Hub</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-            background-color: #121212;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 24px 16px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tesla Fullscreen Hub</title>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --card-hover: #2d2d2d;
+      --accent-color: #e50914;
+      --text-main: #ffffff;
+      --text-sub: #aaaaaa;
+    }
 
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 24px;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #f0f0f0;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
 
-        .action-btn {
-            background-color: #2a2a2a;
-            color: #fff;
-            border: 1px solid #3a3a3a;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #333;
+    }
 
-        .action-btn:active {
-            background-color: #444;
-        }
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
 
-        .shortcut-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 16px;
-            width: 100%;
-            max-width: 800px;
-        }
+    .header-btns {
+      display: flex;
+      gap: 8px;
+    }
 
-        .shortcut-card {
-            position: relative;
-            background-color: #1e1e1e;
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            padding: 18px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.15s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            user-select: none;
-        }
+    button {
+      background: #2a2a2a;
+      color: var(--text-main);
+      border: 1px solid #444;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
 
-        .shortcut-card:active {
-            transform: scale(0.95);
-            background-color: #2c2c2c;
-        }
+    button:active {
+      transform: scale(0.96);
+      background: #3a3a3a;
+    }
 
-        .shortcut-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
+    .btn-fullscreen {
+      background: #e50914;
+      border: none;
+      font-weight: bold;
+    }
 
-        .shortcut-title {
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
+    .btn-fullscreen:active {
+      background: #b20710;
+    }
 
-        .delete-btn {
-            display: none;
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background-color: #ff4d4f;
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 14px;
-            line-height: 20px;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
+    .notice {
+      background: #1a2634;
+      border: 1px solid #2b4c7e;
+      color: #90caf9;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
 
-        .editing .delete-btn {
-            display: block;
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      flex: 1;
+    }
 
-        .add-card {
-            border: 2px dashed #3a3a3a;
-            background-color: transparent;
-        }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      border: 1px solid #2a2a2a;
+    }
 
-        /* Modal 對話框樣式 */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
+    .card:active {
+      background: var(--card-hover);
+      transform: scale(0.95);
+    }
 
-        .modal {
-            background-color: #1e1e1e;
-            border: 1px solid #3a3a3a;
-            border-radius: 12px;
-            padding: 20px;
-            width: 90%;
-            max-width: 400px;
-        }
+    .card-icon {
+      font-size: 2.2rem;
+    }
 
-        .modal h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
-        }
+    .card-title {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
 
-        .modal input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            background-color: #121212;
-            border: 1px solid #3a3a3a;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 14px;
-        }
+    .delete-btn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 8px;
-        }
+    .editing .delete-btn {
+      display: flex;
+    }
 
-        video {
-            position: absolute;
-            top: 0; left: 0;
-            width: 1px; height: 1px;
-            opacity: 0.01;
-            pointer-events: none;
-        }
-    </style>
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: #222;
+      padding: 24px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border: 1px solid #444;
+    }
+
+    .modal h2 {
+      font-size: 1.2rem;
+    }
+
+    .modal input {
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Tesla 車載全屏入口</h1>
-        <button class="action-btn" id="editToggleBtn" onclick="toggleEditMode()">編輯列表</button>
+  <header>
+    <h1>Tesla Hub</h1>
+    <div class="header-btns">
+      <button class="btn-fullscreen" id="fullscreenBtn">📺 全屏模式</button>
+      <button id="addBtn">+ 新增</button>
+      <button id="editBtn">編輯</button>
     </div>
+  </header>
 
-    <div class="shortcut-grid" id="grid">
-        <!-- 動態渲染卡片 -->
+  <div class="notice">
+    💡 <strong>Tesla 車機全屏操作說明：</strong><br>
+    首次開啟時點擊右上角「<strong>全屏模式</strong>」，車機會喚醒劇院模式跳轉至 YouTube，點擊頁面中的「<strong>Go to Site (前往網站)</strong>」即可在全屏狀態下使用此 Hub。
+  </div>
+
+  <div class="grid" id="shortcutGrid"></div>
+
+  <!-- 新增捷徑 Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>新增捷徑</h2>
+      <input type="text" id="inputName" placeholder="名稱 (例如: YouTube)">
+      <input type="text" id="inputUrl" placeholder="網址 (https://...)">
+      <input type="text" id="inputIcon" placeholder="圖示 Emoji (例如: 🎬)">
+      <div class="modal-actions">
+        <button id="cancelBtn">取消</button>
+        <button id="saveBtn" style="background:#e50914; border:none;">儲存</button>
+      </div>
     </div>
+  </div>
 
-    <!-- 新增網站 Modal -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <h2>新增快捷網站</h2>
-            <input type="text" id="siteName" placeholder="網站名稱 (例如: YouTube)">
-            <input type="url" id="siteUrl" placeholder="網址 (https://...)">
-            <input type="text" id="siteIcon" placeholder="Emoji 圖示 (預設: 🌐)" value="🌐">
-            <div class="modal-actions">
-                <button class="action-btn" onclick="closeModal()">取消</button>
-                <button class="action-btn" style="background-color: #2196F3;" onclick="saveShortcut()">新增</button>
-            </div>
-        </div>
-    </div>
+  <script>
+    const defaultShortcuts = [
+      { name: "YouTube", url: "https://www.youtube.com", icon: "🔴" },
+      { name: "Bilibili", url: "https://www.bilibili.com", icon: "📺" },
+      { name: "Netflix", url: "https://www.netflix.com", icon: "🍿" },
+      { name: "Anime1", url: "https://anime1.me", icon: "🌸" },
+      { name: "動畫瘋", url: "https://ani.gamer.com.tw", icon: "🎮" },
+      { name: "Disney+", url: "https://www.disneyplus.com", icon: "🏰" }
+    ];
 
-    <video id="fullscreenTrigger" playsinline preload="auto">
-        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAA=" type="video/mp4">
-    </video>
+    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts')) || defaultShortcuts;
+    let isEditing = false;
 
-    <script>
-        // 更正後的預設網站清單
-        const defaultShortcuts = [
-            { name: 'EMDY', url: 'https://emdy.mimdt.cc/', icon: '🚀' },
-            { name: '觀影', url: 'https://www.xn--wcv59z.com/', icon: '🎬' },
-            { name: '低端影視', url: 'https://ddys.io/', icon: '💎' },
-            { name: '4K 影視', url: 'https://www.4kvm.org/play/ch241ohlk', icon: '🎞️' },
-            { name: 'NetflixGC', url: 'https://www.netflixgc.com/', icon: '🍿' },
-            { name: '西瓜動漫', url: 'https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a', icon: '🍉' },
-            { name: 'AGE 動漫', url: 'https://www.agedm.io/', icon: '⚡' },
-            { name: 'Anime1', url: 'https://anime1.me/', icon: '🍥' },
-            { name: '動畫瘋', url: 'https://ani.gamer.com.tw/animeList.php', icon: '🎮' },
-            { name: 'Bilibili', url: 'https://www.bilibili.com/', icon: '📺' }
-        ];
+    const grid = document.getElementById('shortcutGrid');
+    const editBtn = document.getElementById('editBtn');
+    const addBtn = document.getElementById('addBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
 
-        let shortcuts = [];
-        let isEditing = false;
-        let pendingUrl = '';
+    // 構建 YouTube 重定向網址 (Tesla 劇院模式觸發核心)
+    function getYouTubeRedirectUrl(targetUrl) {
+      return 'https://www.youtube.com/redirect?q=' + encodeURIComponent(targetUrl);
+    }
 
-        const grid = document.getElementById('grid');
-        const video = document.getElementById('fullscreenTrigger');
+    function render() {
+      grid.innerHTML = '';
+      shortcuts.forEach((sc, index) => {
+        const card = document.createElement('div');
+        card.className = `card ${isEditing ? 'editing' : ''}`;
+        card.innerHTML = `
+          <div class="card-icon">${sc.icon || '🌐'}</div>
+          <div class="card-title">${sc.name}</div>
+          <button class="delete-btn" data-index="${index}">✕</button>
+        `;
 
-        function init() {
-            const saved = localStorage.getItem('tesla_shortcuts');
-            if (saved) {
-                try {
-                    shortcuts = JSON.parse(saved);
-                } catch (e) {
-                    shortcuts = [...defaultShortcuts];
-                }
-            } else {
-                shortcuts = [...defaultShortcuts];
+        card.addEventListener('click', (e) => {
+          if (isEditing) {
+            if (e.target.classList.contains('delete-btn')) {
+              shortcuts.splice(index, 1);
+              saveShortcuts();
+              render();
             }
-            render();
-        }
+            return;
+          }
+          // 透過 YouTube 重定向進入全屏跳轉
+          window.location.href = getYouTubeRedirectUrl(sc.url);
+        });
 
-        function render() {
-            grid.innerHTML = '';
+        grid.appendChild(card);
+      });
+    }
 
-            shortcuts.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = `shortcut-card ${isEditing ? 'editing' : ''}`;
-                card.onclick = (e) => {
-                    if (isEditing) return;
-                    launchApp(item.url);
-                };
+    function saveShortcuts() {
+      localStorage.setItem('tesla_shortcuts', JSON.stringify(shortcuts));
+    }
 
-                card.innerHTML = `
-                    <div class="delete-btn" onclick="deleteShortcut(event, ${index})">✕</div>
-                    <div class="shortcut-icon">${item.icon || '🌐'}</div>
-                    <div class="shortcut-title">${item.name}</div>
-                `;
-                grid.appendChild(card);
-            });
+    // 將本頁面經由 YouTube 重定向重新載入，實現全屏 Hub
+    fullscreenBtn.addEventListener('click', () => {
+      const currentUrl = window.location.href;
+      window.location.href = getYouTubeRedirectUrl(currentUrl);
+    });
 
-            const fsCard = document.createElement('div');
-            fsCard.className = 'shortcut-card';
-            fsCard.onclick = () => { if (!isEditing) launchApp(''); };
-            fsCard.innerHTML = `
-                <div class="shortcut-icon">⛶</div>
-                <div class="shortcut-title">僅全屏當前頁</div>
-            `;
-            grid.appendChild(fsCard);
+    editBtn.addEventListener('click', () => {
+      isEditing = !isEditing;
+      editBtn.textContent = isEditing ? '完成' : '編輯';
+      render();
+    });
 
-            const addCard = document.createElement('div');
-            addCard.className = 'shortcut-card add-card';
-            addCard.onclick = openModal;
-            addCard.innerHTML = `
-                <div class="shortcut-icon">＋</div>
-                <div class="shortcut-title">新增捷徑</div>
-            `;
-            grid.appendChild(addCard);
-        }
+    addBtn.addEventListener('click', () => {
+      modalOverlay.style.display = 'flex';
+    });
 
-        function toggleEditMode() {
-            isEditing = !isEditing;
-            document.getElementById('editToggleBtn').innerText = isEditing ? '完成' : '編輯列表';
-            render();
-        }
+    cancelBtn.addEventListener('click', () => {
+      modalOverlay.style.display = 'none';
+    });
 
-        function openModal() {
-            document.getElementById('modalOverlay').style.display = 'flex';
-        }
+    saveBtn.addEventListener('click', () => {
+      const name = document.getElementById('inputName').value.trim();
+      let url = document.getElementById('inputUrl').value.trim();
+      const icon = document.getElementById('inputIcon').value.trim();
 
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            document.getElementById('siteName').value = '';
-            document.getElementById('siteUrl').value = '';
-            document.getElementById('siteIcon').value = '🌐';
-        }
+      if (!name || !url) {
+        alert('請填寫名稱與網址');
+        return;
+      }
 
-        function saveShortcut() {
-            const name = document.getElementById('siteName').value.trim();
-            let url = document.getElementById('siteUrl').value.trim();
-            const icon = document.getElementById('siteIcon').value.trim() || '🌐';
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
 
-            if (!name || !url) {
-                alert('請輸入名稱與網址！');
-                return;
-            }
+      shortcuts.push({ name, url, icon });
+      saveShortcuts();
+      render();
 
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = 'https://' + url;
-            }
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputUrl').value = '';
+      document.getElementById('inputIcon').value = '';
+      modalOverlay.style.display = 'none';
+    });
 
-            shortcuts.push({ name, url, icon });
-            saveToStorage();
-            closeModal();
-            render();
-        }
-
-        function deleteShortcut(e, index) {
-            e.stopPropagation();
-            shortcuts.splice(index, 1);
-            saveToStorage();
-            render();
-        }
-
-        function saveToStorage() {
-            localStorage.setItem('tesla_shortcuts', JSON.stringify(shortcuts));
-        }
-
-        document.addEventListener('fullscreenchange', onFullscreenChange);
-        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-
-        function onFullscreenChange() {
-            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
-            if (isFullscreen && pendingUrl) {
-                const target = pendingUrl;
-                pendingUrl = '';
-                window.location.replace(target);
-            }
-        }
-
-        function launchApp(targetUrl) {
-            pendingUrl = targetUrl;
-
-            if (video.requestFullscreen) {
-                video.requestFullscreen().catch(handleError);
-            } else if (video.webkitRequestFullscreen) {
-                video.webkitRequestFullscreen();
-            }
-
-            video.play().catch(handleError);
-
-            if (targetUrl) {
-                setTimeout(() => {
-                    if (pendingUrl) {
-                        window.location.href = pendingUrl;
-                    }
-                }, 800);
-            }
-        }
-
-        function handleError(err) {
-            if (pendingUrl) {
-                window.location.href = pendingUrl;
-            }
-        }
-
-        init();
-    </script>
+    render();
+  </script>
 </body>
 </html>
