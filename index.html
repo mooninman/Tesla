@@ -139,8 +139,8 @@
     }
 
     .card-icon-img {
-      width: 46px;
-      height: 46px;
+      width: 50px;
+      height: 50px;
       border-radius: 12px;
       object-fit: cover;
       margin-bottom: 10px;
@@ -148,13 +148,13 @@
     }
 
     .card-icon-text {
-      font-size: 2.2rem;
-      margin-bottom: 6px;
+      font-size: 2.3rem;
+      margin-bottom: 8px;
       line-height: 1;
     }
 
     .card-title {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 500;
       color: var(--text-sub);
       text-align: center;
@@ -266,7 +266,6 @@
   </div>
 
   <script>
-    // 預設豐富的 20+ 常用車載捷徑
     const defaultShortcuts = [
       { name: "YouTube", url: "https://www.youtube.com" },
       { name: "Netflix", url: "https://www.netflix.com" },
@@ -288,7 +287,7 @@
       { name: "Google Maps", url: "https://maps.google.com" }
     ];
 
-    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v2')) || defaultShortcuts;
+    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v3')) || defaultShortcuts;
     let isEditing = false;
 
     const grid = document.getElementById('shortcutGrid');
@@ -299,7 +298,6 @@
     const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelBtn');
 
-    // 取得官方高清 Favicon URL
     function getFaviconUrl(domainUrl) {
       try {
         const urlObj = new URL(domainUrl);
@@ -309,7 +307,6 @@
       }
     }
 
-    // YouTube 劇院模式跳轉核心
     function getYouTubeRedirectUrl(targetUrl) {
       return 'https://www.youtube.com/redirect?q=' + encodeURIComponent(targetUrl);
     }
@@ -319,23 +316,41 @@
       shortcuts.forEach((sc, index) => {
         const card = document.createElement('div');
         card.className = `card ${isEditing ? 'editing' : ''}`;
-        
-        const faviconSrc = getFaviconUrl(sc.url);
-        
-        // 如果有指定 Emoji 就用 Emoji，否則載入 Google 高畫質 Favicon
-        let iconHtml = '';
+
+        // 1. 圖示區域 (DOM 構建，避免引號逃逸問題)
         if (sc.icon) {
-          iconHtml = `<div class="card-icon-text">${sc.icon}</div>`;
+          const iconText = document.createElement('div');
+          iconText.className = 'card-icon-text';
+          iconText.textContent = sc.icon;
+          card.appendChild(iconText);
         } else {
-          iconHtml = `<img class="card-icon-img" src="${faviconSrc}" onerror="this.onerror=null; this.outerHTML='<div class=\"card-icon-text\">🌐</div>';" alt="${sc.name}">`;
+          const img = document.createElement('img');
+          img.className = 'card-icon-img';
+          img.src = getFaviconUrl(sc.url);
+          img.alt = sc.name;
+          img.onerror = function() {
+            const fallback = document.createElement('div');
+            fallback.className = 'card-icon-text';
+            fallback.textContent = '🌐';
+            this.replaceWith(fallback);
+          };
+          card.appendChild(img);
         }
 
-        card.innerHTML = `
-          ${iconHtml}
-          <div class="card-title">${sc.name}</div>
-          <button class="delete-btn" data-index="${index}">✕</button>
-        `;
+        // 2. 標題區域
+        const title = document.createElement('div');
+        title.className = 'card-title';
+        title.textContent = sc.name;
+        card.appendChild(title);
 
+        // 3. 刪除按鈕
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.textContent = '✕';
+        delBtn.setAttribute('data-index', index);
+        card.appendChild(delBtn);
+
+        // 4. 點擊事件
         card.addEventListener('click', (e) => {
           if (isEditing) {
             if (e.target.classList.contains('delete-btn')) {
@@ -353,7 +368,7 @@
     }
 
     function saveShortcuts() {
-      localStorage.setItem('tesla_shortcuts_v2', JSON.stringify(shortcuts));
+      localStorage.setItem('tesla_shortcuts_v3', JSON.stringify(shortcuts));
     }
 
     fullscreenBtn.addEventListener('click', () => {
