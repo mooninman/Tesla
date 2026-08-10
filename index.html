@@ -139,12 +139,13 @@
     }
 
     .card-icon-img {
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       border-radius: 12px;
       object-fit: cover;
       margin-bottom: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      background-color: #2a2a2a;
     }
 
     .card-icon-text {
@@ -255,9 +256,9 @@
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2>新增自訂捷徑</h2>
-      <input type="text" id="inputName" placeholder="網站名稱 (例如: Twitch)">
-      <input type="text" id="inputUrl" placeholder="網址 (https://www.twitch.tv)">
-      <input type="text" id="inputIcon" placeholder="圖示 Emoji (可選，留空自動抓取 Logo)">
+      <input type="text" id="inputName" placeholder="網站名稱">
+      <input type="text" id="inputUrl" placeholder="網址 (https://...)">
+      <input type="text" id="inputIcon" placeholder="圖示 URL (可選，留空自動擷取)">
       <div class="modal-actions">
         <button id="cancelBtn">取消</button>
         <button id="saveBtn" class="btn-fullscreen">儲存</button>
@@ -266,28 +267,21 @@
   </div>
 
   <script>
+    // 指定 10 個網站的高畫質 Logo 圖片網址
     const defaultShortcuts = [
-      { name: "YouTube", url: "https://www.youtube.com" },
-      { name: "Netflix", url: "https://www.netflix.com" },
-      { name: "Disney+", url: "https://www.disneyplus.com" },
-      { name: "Bilibili", url: "https://www.bilibili.com" },
-      { name: "動畫瘋", url: "https://ani.gamer.com.tw" },
-      { name: "Anime1", url: "https://anime1.me" },
-      { name: "HBO Max", url: "https://www.max.com" },
-      { name: "Prime Video", url: "https://www.primevideo.com" },
-      { name: "愛奇藝", url: "https://www.iq.com" },
-      { name: "Twitch", url: "https://www.twitch.tv" },
-      { name: "Apple Music", url: "https://music.apple.com" },
-      { name: "Spotify", url: "https://open.spotify.com" },
-      { name: "YouTube Music", url: "https://music.youtube.com" },
-      { name: "ChatGPT", url: "https://chatgpt.com" },
-      { name: "X / Twitter", url: "https://x.com" },
-      { name: "Reddit", url: "https://www.reddit.com" },
-      { name: "Plex", url: "https://app.plex.tv" },
-      { name: "Google Maps", url: "https://maps.google.com" }
+      { name: 'EMDY', url: 'https://emdy.mimdt.cc/', icon: 'https://emdy.mimdt.cc/favicon.ico' },
+      { name: '觀影', url: 'https://www.xn--wcv59z.com/', icon: 'https://www.google.com/s2/favicons?domain=www.xn--wcv59z.com&sz=128' },
+      { name: '低端影視', url: 'https://ddys.io/', icon: 'https://ddys.io/favicon-32x32.png' },
+      { name: '4K 影視', url: 'https://www.4kvm.org/play/ch241ohlk', icon: 'https://www.4kvm.org/upload/site/20220613-1/7e155498877e8a9391d371421beed1eb.png' },
+      { name: 'NetflixGC', url: 'https://www.netflixgc.com/', icon: 'https://www.google.com/s2/favicons?domain=netflixgc.com&sz=128' },
+      { name: '西瓜動漫', url: 'https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a', icon: 'https://www.google.com/s2/favicons?domain=www.xgcartoon.com&sz=128' },
+      { name: 'AGE 動漫', url: 'https://www.agedm.io/', icon: 'https://www.agedm.io/favicon.ico' },
+      { name: 'Anime1', url: 'https://anime1.me/', icon: 'https://anime1.me/apple-touch-icon.png' },
+      { name: '動畫瘋', url: 'https://ani.gamer.com.tw/animeList.php', icon: 'https://i2.bahamut.com.tw/anime/anime_logo.png' },
+      { name: 'Bilibili', url: 'https://www.bilibili.com/', icon: 'https://www.bilibili.com/favicon.ico' }
     ];
 
-    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v3')) || defaultShortcuts;
+    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v6')) || defaultShortcuts;
     let isEditing = false;
 
     const grid = document.getElementById('shortcutGrid');
@@ -317,40 +311,34 @@
         const card = document.createElement('div');
         card.className = `card ${isEditing ? 'editing' : ''}`;
 
-        // 1. 圖示區域 (DOM 構建，避免引號逃逸問題)
-        if (sc.icon) {
-          const iconText = document.createElement('div');
-          iconText.className = 'card-icon-text';
-          iconText.textContent = sc.icon;
-          card.appendChild(iconText);
-        } else {
-          const img = document.createElement('img');
-          img.className = 'card-icon-img';
-          img.src = getFaviconUrl(sc.url);
-          img.alt = sc.name;
-          img.onerror = function() {
+        // 優先渲染指定的 Logo 圖片網址，若失效則改為 Google Favicon 備用
+        const img = document.createElement('img');
+        img.className = 'card-icon-img';
+        img.src = sc.icon || getFaviconUrl(sc.url);
+        img.alt = sc.name;
+        img.onerror = function() {
+          if (this.src !== getFaviconUrl(sc.url)) {
+            this.src = getFaviconUrl(sc.url);
+          } else {
             const fallback = document.createElement('div');
             fallback.className = 'card-icon-text';
             fallback.textContent = '🌐';
             this.replaceWith(fallback);
-          };
-          card.appendChild(img);
-        }
+          }
+        };
+        card.appendChild(img);
 
-        // 2. 標題區域
         const title = document.createElement('div');
         title.className = 'card-title';
         title.textContent = sc.name;
         card.appendChild(title);
 
-        // 3. 刪除按鈕
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
         delBtn.textContent = '✕';
         delBtn.setAttribute('data-index', index);
         card.appendChild(delBtn);
 
-        // 4. 點擊事件
         card.addEventListener('click', (e) => {
           if (isEditing) {
             if (e.target.classList.contains('delete-btn')) {
@@ -368,7 +356,7 @@
     }
 
     function saveShortcuts() {
-      localStorage.setItem('tesla_shortcuts_v3', JSON.stringify(shortcuts));
+      localStorage.setItem('tesla_shortcuts_v6', JSON.stringify(shortcuts));
     }
 
     fullscreenBtn.addEventListener('click', () => {
