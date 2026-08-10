@@ -138,20 +138,25 @@
       transform: scale(0.92);
     }
 
-    .card-icon-img {
+    /* 內建 App 圖示容器 */
+    .card-icon-box {
       width: 52px;
       height: 52px;
-      border-radius: 12px;
-      object-fit: cover;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      background-color: #2a2a2a;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    .card-icon-text {
-      font-size: 2.3rem;
-      margin-bottom: 8px;
-      line-height: 1;
+    .card-icon-box svg {
+      width: 30px;
+      height: 30px;
+      fill: currentColor;
     }
 
     .card-title {
@@ -258,7 +263,7 @@
       <h2>新增自訂捷徑</h2>
       <input type="text" id="inputName" placeholder="網站名稱">
       <input type="text" id="inputUrl" placeholder="網址 (https://...)">
-      <input type="text" id="inputIcon" placeholder="圖示 URL (可選，留空自動擷取)">
+      <input type="text" id="inputBg" placeholder="代表背景色 (預設 #333)">
       <div class="modal-actions">
         <button id="cancelBtn">取消</button>
         <button id="saveBtn" class="btn-fullscreen">儲存</button>
@@ -267,21 +272,71 @@
   </div>
 
   <script>
-    // 指定 10 個網站的高畫質 Logo 圖片網址
+    // 預先內嵌 SVG 與代表色，100% 離線可用且不會破圖
     const defaultShortcuts = [
-      { name: 'EMDY', url: 'https://emdy.mimdt.cc/', icon: 'https://emdy.mimdt.cc/favicon.ico' },
-      { name: '觀影', url: 'https://www.xn--wcv59z.com/', icon: 'https://www.google.com/s2/favicons?domain=www.xn--wcv59z.com&sz=128' },
-      { name: '低端影視', url: 'https://ddys.io/', icon: 'https://ddys.io/favicon-32x32.png' },
-      { name: '4K 影視', url: 'https://www.4kvm.org/play/ch241ohlk', icon: 'https://www.4kvm.org/upload/site/20220613-1/7e155498877e8a9391d371421beed1eb.png' },
-      { name: 'NetflixGC', url: 'https://www.netflixgc.com/', icon: 'https://www.google.com/s2/favicons?domain=netflixgc.com&sz=128' },
-      { name: '西瓜動漫', url: 'https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a', icon: 'https://www.google.com/s2/favicons?domain=www.xgcartoon.com&sz=128' },
-      { name: 'AGE 動漫', url: 'https://www.agedm.io/', icon: 'https://www.agedm.io/favicon.ico' },
-      { name: 'Anime1', url: 'https://anime1.me/', icon: 'https://anime1.me/apple-touch-icon.png' },
-      { name: '動畫瘋', url: 'https://ani.gamer.com.tw/animeList.php', icon: 'https://i2.bahamut.com.tw/anime/anime_logo.png' },
-      { name: 'Bilibili', url: 'https://www.bilibili.com/', icon: 'https://www.bilibili.com/favicon.ico' }
+      { 
+        name: 'EMDY', 
+        url: 'https://emdy.mimdt.cc/', 
+        bg: 'linear-gradient(135deg, #522888, #3b1b66)',
+        svg: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>'
+      },
+      { 
+        name: '觀影', 
+        url: 'https://www.xn--wcv59z.com/', 
+        bg: 'linear-gradient(135deg, #1e3c72, #2a5298)',
+        svg: '<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>'
+      },
+      { 
+        name: '低端影視', 
+        url: 'https://ddys.io/', 
+        bg: '#111111',
+        svg: '<svg viewBox="0 0 24 24" fill="#00d26a"><path d="M12 2L2 19h20L12 2zm0 3.8L18.5 17H5.5L12 5.8z"/></svg>'
+      },
+      { 
+        name: '4K 影視', 
+        url: 'https://www.4kvm.org/play/ch241ohlk', 
+        bg: 'linear-gradient(135deg, #ff416c, #ff4b2b)',
+        svg: '<span style="font-size:1.1rem;font-weight:900;">4K</span>'
+      },
+      { 
+        name: 'NetflixGC', 
+        url: 'https://www.netflixgc.com/', 
+        bg: '#000000',
+        svg: '<span style="font-size:1.4rem;font-weight:900;color:#e50914;">N</span>'
+      },
+      { 
+        name: '西瓜動漫', 
+        url: 'https://www.xgcartoon.com/classify?type=%2a&region=jp&state=serial&filter=%2a', 
+        bg: 'linear-gradient(135deg, #11998e, #38ef7d)',
+        svg: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93z"/></svg>'
+      },
+      { 
+        name: 'AGE 動漫', 
+        url: 'https://www.agedm.io/', 
+        bg: '#212529',
+        svg: '<svg viewBox="0 0 24 24" fill="#ffc107"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>'
+      },
+      { 
+        name: 'Anime1', 
+        url: 'https://anime1.me/', 
+        bg: 'linear-gradient(135deg, #ff9a9e, #fecfef)',
+        svg: '<span style="font-size:1.2rem;font-weight:900;color:#d63384;">A1</span>'
+      },
+      { 
+        name: '動畫瘋', 
+        url: 'https://ani.gamer.com.tw/animeList.php', 
+        bg: '#00b4d8',
+        svg: '<span style="font-size:1.1rem;font-weight:900;color:#fff;">巴哈</span>'
+      },
+      { 
+        name: 'Bilibili', 
+        url: 'https://www.bilibili.com/', 
+        bg: '#00a1d6',
+        svg: '<svg viewBox="0 0 24 24"><path d="M17.81 14c-.08 0-.15-.02-.22-.06l-.59-.34a.65.65 0 0 1-.25-.87c.12-.21.38-.28.6-.16l.58.34c.21.12.28.38.16.6 0 .12-.13.22-.28.22zm-11.62 0c-.15 0-.28-.1-.28-.22 0-.22.07-.48.28-.6l.58-.34c.22-.12.48-.05.6.16a.65.65 0 0 1-.25.87l-.59.34c-.11.04-.22.06-.34.06zm13.1-4.73c-.22-.38-.63-.58-1.09-.58H5.8c-.46 0-.87.2-1.09.58-.22.39-.21.85.02 1.23l1.82 3.12c.16.27.42.44.73.51V18c0 .55.45 1 1 1h.5c.55 0 1-.45 1-1v-.5h4V18c0 .55.45 1 1 1h.5c.55 0 1-.45 1-1v-3.88c.31-.07.57-.24.73-.51l1.82-3.12c.23-.38.24-.84.02-1.23z"/></svg>'
+      }
     ];
 
-    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v6')) || defaultShortcuts;
+    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v7')) || defaultShortcuts;
     let isEditing = false;
 
     const grid = document.getElementById('shortcutGrid');
@@ -291,15 +346,6 @@
     const modalOverlay = document.getElementById('modalOverlay');
     const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelBtn');
-
-    function getFaviconUrl(domainUrl) {
-      try {
-        const urlObj = new URL(domainUrl);
-        return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
-      } catch (e) {
-        return '';
-      }
-    }
 
     function getYouTubeRedirectUrl(targetUrl) {
       return 'https://www.youtube.com/redirect?q=' + encodeURIComponent(targetUrl);
@@ -311,22 +357,18 @@
         const card = document.createElement('div');
         card.className = `card ${isEditing ? 'editing' : ''}`;
 
-        // 優先渲染指定的 Logo 圖片網址，若失效則改為 Google Favicon 備用
-        const img = document.createElement('img');
-        img.className = 'card-icon-img';
-        img.src = sc.icon || getFaviconUrl(sc.url);
-        img.alt = sc.name;
-        img.onerror = function() {
-          if (this.src !== getFaviconUrl(sc.url)) {
-            this.src = getFaviconUrl(sc.url);
-          } else {
-            const fallback = document.createElement('div');
-            fallback.className = 'card-icon-text';
-            fallback.textContent = '🌐';
-            this.replaceWith(fallback);
-          }
-        };
-        card.appendChild(img);
+        // 建立純向量 / CSS Icon 區塊
+        const iconBox = document.createElement('div');
+        iconBox.className = 'card-icon-box';
+        iconBox.style.background = sc.bg || '#333';
+        
+        if (sc.svg) {
+          iconBox.innerHTML = sc.svg;
+        } else {
+          iconBox.textContent = sc.name.substring(0, 2);
+        }
+        
+        card.appendChild(iconBox);
 
         const title = document.createElement('div');
         title.className = 'card-title';
@@ -356,7 +398,7 @@
     }
 
     function saveShortcuts() {
-      localStorage.setItem('tesla_shortcuts_v6', JSON.stringify(shortcuts));
+      localStorage.setItem('tesla_shortcuts_v7', JSON.stringify(shortcuts));
     }
 
     fullscreenBtn.addEventListener('click', () => {
@@ -380,7 +422,7 @@
     saveBtn.addEventListener('click', () => {
       const name = document.getElementById('inputName').value.trim();
       let url = document.getElementById('inputUrl').value.trim();
-      const icon = document.getElementById('inputIcon').value.trim();
+      const bg = document.getElementById('inputBg').value.trim() || '#333';
 
       if (!name || !url) {
         alert('請填寫名稱與網址');
@@ -391,13 +433,13 @@
         url = 'https://' + url;
       }
 
-      shortcuts.push({ name, url, icon });
+      shortcuts.push({ name, url, bg });
       saveShortcuts();
       render();
 
       document.getElementById('inputName').value = '';
       document.getElementById('inputUrl').value = '';
-      document.getElementById('inputIcon').value = '';
+      document.getElementById('inputBg').value = '';
       modalOverlay.style.display = 'none';
     });
 
