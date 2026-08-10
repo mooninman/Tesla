@@ -6,12 +6,13 @@
   <title>Tesla Fullscreen Hub</title>
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --card-hover: #2d2d2d;
+      --bg-color: #0d0d0d;
+      --card-bg: #1c1c1e;
+      --card-hover: #2c2c2e;
       --accent-color: #e50914;
       --text-main: #ffffff;
-      --text-sub: #aaaaaa;
+      --text-sub: #a1a1a6;
+      --border-color: #2c2c2e;
     }
 
     * {
@@ -27,9 +28,15 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       min-height: 100vh;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      padding: 20px;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1080px;
     }
 
     header {
@@ -37,90 +44,118 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #333;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    h1 {
-      font-size: 1.4rem;
-      font-weight: 600;
+    .logo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-title span {
+      background: var(--accent-color);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
     }
 
     .header-btns {
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
     button {
-      background: #2a2a2a;
+      background: #2c2c2e;
       color: var(--text-main);
-      border: 1px solid #444;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      border: 1px solid #3a3a3c;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: all 0.15s ease;
     }
 
     button:active {
-      transform: scale(0.96);
-      background: #3a3a3a;
+      transform: scale(0.94);
+      background: #3a3a3c;
     }
 
     .btn-fullscreen {
-      background: #e50914;
+      background: var(--accent-color);
       border: none;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .btn-fullscreen:active {
       background: #b20710;
     }
 
-    .notice {
-      background: #1a2634;
-      border: 1px solid #2b4c7e;
-      color: #90caf9;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      line-height: 1.4;
-      margin-bottom: 20px;
+    .notice-bar {
+      background: #1c2533;
+      border: 1px solid #2e3d52;
+      color: #8ab4f8;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 16px;
-      flex: 1;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 18px;
+      width: 100%;
     }
 
     .card {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 16px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      aspect-ratio: 1 / 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      padding: 12px;
       cursor: pointer;
       position: relative;
-      transition: background 0.2s;
-      border: 1px solid #2a2a2a;
+      transition: background 0.15s, transform 0.15s;
     }
 
     .card:active {
       background: var(--card-hover);
-      transform: scale(0.95);
+      transform: scale(0.92);
     }
 
-    .card-icon {
+    .card-icon-img {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .card-icon-text {
       font-size: 2.2rem;
+      margin-bottom: 6px;
+      line-height: 1;
     }
 
     .card-title {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 500;
       color: var(--text-sub);
       text-align: center;
       white-space: nowrap;
@@ -133,16 +168,18 @@
       position: absolute;
       top: -6px;
       right: -6px;
-      background: #ff4444;
+      background: #ff3b30;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       font-size: 14px;
+      font-weight: bold;
       display: none;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
 
     .editing .delete-btn {
@@ -153,7 +190,8 @@
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
       display: none;
       justify-content: center;
       align-items: center;
@@ -161,80 +199,96 @@
     }
 
     .modal {
-      background: #222;
+      background: #1c1c1e;
       padding: 24px;
-      border-radius: 16px;
+      border-radius: 20px;
       width: 90%;
       max-width: 400px;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      border: 1px solid #444;
+      border: 1px solid var(--border-color);
     }
 
     .modal h2 {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
 
     .modal input {
-      background: #111;
-      border: 1px solid #444;
+      background: #0d0d0d;
+      border: 1px solid #3a3a3c;
       color: #fff;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Tesla Hub</h1>
-    <div class="header-btns">
-      <button class="btn-fullscreen" id="fullscreenBtn">📺 全屏模式</button>
-      <button id="addBtn">+ 新增</button>
-      <button id="editBtn">編輯</button>
-    </div>
-  </header>
+  <div class="container">
+    <header>
+      <div class="logo-title">Tesla Hub <span>Theatre</span></div>
+      <div class="header-btns">
+        <button class="btn-fullscreen" id="fullscreenBtn">📺 全屏進入</button>
+        <button id="addBtn">+ 新增</button>
+        <button id="editBtn">編輯</button>
+      </div>
+    </header>
 
-  <div class="notice">
-    💡 <strong>Tesla 車機全屏操作說明：</strong><br>
-    首次開啟時點擊右上角「<strong>全屏模式</strong>」，車機會喚醒劇院模式跳轉至 YouTube，點擊頁面中的「<strong>Go to Site (前往網站)</strong>」即可在全屏狀態下使用此 Hub。
+    <div class="notice-bar">
+      <span>💡 點擊「<strong>全屏進入</strong>」透過 YouTube 劇院機制喚醒全屏，點擊頁面中的「Go to Site」即可全屏使用此 Hub。</span>
+    </div>
+
+    <div class="grid" id="shortcutGrid"></div>
   </div>
 
-  <div class="grid" id="shortcutGrid"></div>
-
-  <!-- 新增捷徑 Modal -->
+  <!-- 新增 Modal -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-      <h2>新增捷徑</h2>
-      <input type="text" id="inputName" placeholder="名稱 (例如: YouTube)">
-      <input type="text" id="inputUrl" placeholder="網址 (https://...)">
-      <input type="text" id="inputIcon" placeholder="圖示 Emoji (例如: 🎬)">
+      <h2>新增自訂捷徑</h2>
+      <input type="text" id="inputName" placeholder="網站名稱 (例如: Twitch)">
+      <input type="text" id="inputUrl" placeholder="網址 (https://www.twitch.tv)">
+      <input type="text" id="inputIcon" placeholder="圖示 Emoji (可選，留空自動抓取 Logo)">
       <div class="modal-actions">
         <button id="cancelBtn">取消</button>
-        <button id="saveBtn" style="background:#e50914; border:none;">儲存</button>
+        <button id="saveBtn" class="btn-fullscreen">儲存</button>
       </div>
     </div>
   </div>
 
   <script>
+    // 預設豐富的 20+ 常用車載捷徑
     const defaultShortcuts = [
-      { name: "YouTube", url: "https://www.youtube.com", icon: "🔴" },
-      { name: "Bilibili", url: "https://www.bilibili.com", icon: "📺" },
-      { name: "Netflix", url: "https://www.netflix.com", icon: "🍿" },
-      { name: "Anime1", url: "https://anime1.me", icon: "🌸" },
-      { name: "動畫瘋", url: "https://ani.gamer.com.tw", icon: "🎮" },
-      { name: "Disney+", url: "https://www.disneyplus.com", icon: "🏰" }
+      { name: "YouTube", url: "https://www.youtube.com" },
+      { name: "Netflix", url: "https://www.netflix.com" },
+      { name: "Disney+", url: "https://www.disneyplus.com" },
+      { name: "Bilibili", url: "https://www.bilibili.com" },
+      { name: "動畫瘋", url: "https://ani.gamer.com.tw" },
+      { name: "Anime1", url: "https://anime1.me" },
+      { name: "HBO Max", url: "https://www.max.com" },
+      { name: "Prime Video", url: "https://www.primevideo.com" },
+      { name: "愛奇藝", url: "https://www.iq.com" },
+      { name: "Twitch", url: "https://www.twitch.tv" },
+      { name: "Apple Music", url: "https://music.apple.com" },
+      { name: "Spotify", url: "https://open.spotify.com" },
+      { name: "YouTube Music", url: "https://music.youtube.com" },
+      { name: "ChatGPT", url: "https://chatgpt.com" },
+      { name: "X / Twitter", url: "https://x.com" },
+      { name: "Reddit", url: "https://www.reddit.com" },
+      { name: "Plex", url: "https://app.plex.tv" },
+      { name: "Google Maps", url: "https://maps.google.com" }
     ];
 
-    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts')) || defaultShortcuts;
+    let shortcuts = JSON.parse(localStorage.getItem('tesla_shortcuts_v2')) || defaultShortcuts;
     let isEditing = false;
 
     const grid = document.getElementById('shortcutGrid');
@@ -245,7 +299,17 @@
     const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelBtn');
 
-    // 構建 YouTube 重定向網址 (Tesla 劇院模式觸發核心)
+    // 取得官方高清 Favicon URL
+    function getFaviconUrl(domainUrl) {
+      try {
+        const urlObj = new URL(domainUrl);
+        return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=128`;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // YouTube 劇院模式跳轉核心
     function getYouTubeRedirectUrl(targetUrl) {
       return 'https://www.youtube.com/redirect?q=' + encodeURIComponent(targetUrl);
     }
@@ -255,8 +319,19 @@
       shortcuts.forEach((sc, index) => {
         const card = document.createElement('div');
         card.className = `card ${isEditing ? 'editing' : ''}`;
+        
+        const faviconSrc = getFaviconUrl(sc.url);
+        
+        // 如果有指定 Emoji 就用 Emoji，否則載入 Google 高畫質 Favicon
+        let iconHtml = '';
+        if (sc.icon) {
+          iconHtml = `<div class="card-icon-text">${sc.icon}</div>`;
+        } else {
+          iconHtml = `<img class="card-icon-img" src="${faviconSrc}" onerror="this.onerror=null; this.outerHTML='<div class=\"card-icon-text\">🌐</div>';" alt="${sc.name}">`;
+        }
+
         card.innerHTML = `
-          <div class="card-icon">${sc.icon || '🌐'}</div>
+          ${iconHtml}
           <div class="card-title">${sc.name}</div>
           <button class="delete-btn" data-index="${index}">✕</button>
         `;
@@ -270,7 +345,6 @@
             }
             return;
           }
-          // 透過 YouTube 重定向進入全屏跳轉
           window.location.href = getYouTubeRedirectUrl(sc.url);
         });
 
@@ -279,13 +353,11 @@
     }
 
     function saveShortcuts() {
-      localStorage.setItem('tesla_shortcuts', JSON.stringify(shortcuts));
+      localStorage.setItem('tesla_shortcuts_v2', JSON.stringify(shortcuts));
     }
 
-    // 將本頁面經由 YouTube 重定向重新載入，實現全屏 Hub
     fullscreenBtn.addEventListener('click', () => {
-      const currentUrl = window.location.href;
-      window.location.href = getYouTubeRedirectUrl(currentUrl);
+      window.location.href = getYouTubeRedirectUrl(window.location.href);
     });
 
     editBtn.addEventListener('click', () => {
